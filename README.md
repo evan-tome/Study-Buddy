@@ -7,7 +7,7 @@ Study Buddy is a collaborative study platform that allows students to create and
 - User authentication with JWT
 - Create, join, and leave study sessions
 - Real-time chat per session using Socket.IO
-- Session dashboard with participants and chat (Discord-style layout)
+- Session dashboard with participants and chat
 - Search and filter sessions
 - Responsive design
 
