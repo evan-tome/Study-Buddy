@@ -1,0 +1,56 @@
+.home-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #4a90e2, #9013fe);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.home-content h1 {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.home-content p {
+    font-size: 1.2rem;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+}
+
+.home-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.login-btn {
+    background-color: white;
+    color: #4a90e2;
+}
+
+.login-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.register-btn {
+    background-color: white;
+    color: #9013fe;
+}
+
+.register-btn:hover {
+    background-color: #f0f0f0;
+}
