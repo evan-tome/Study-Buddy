@@ -32,7 +32,7 @@ Study Buddy is a collaborative study platform that allows students to create and
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/study-buddy.git
+git clone https://github.com/evan-tome/Study-Buddy.git
 cd study-buddy
 ```
 
