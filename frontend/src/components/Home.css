@@ -1,56 +1,82 @@
-.home-container {
+.home-page {
     min-height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #4a90e2, #9013fe);
-    color: white;
-    text-align: center;
-    padding: 20px;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(160deg, #0f172a 0%, #1e293b 45%, #334155 100%);
 }
 
-.home-content h1 {
-    font-size: 4rem;
+.home-content {
+    max-width: 520px;
+    text-align: center;
+}
+
+.home-icon-wrap {
     margin-bottom: 20px;
 }
 
-.home-content p {
-    font-size: 1.2rem;
-    max-width: 500px;
-    margin: 0 auto 30px;
+.home-icon-wrap svg {
+    color: #3797f0;
+    filter: drop-shadow(0 0 20px rgba(55, 151, 240, 0.3));
+}
+
+.home-title {
+    margin: 0 0 16px 0;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.home-tagline {
+    margin: 0 0 36px 0;
+    font-size: 1.15rem;
     line-height: 1.6;
+    color: #94a3b8;
 }
 
 .home-buttons {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 14px;
 }
 
-.btn {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 8px;
+.home-btn {
+    padding: 14px 28px;
     font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.login-btn {
-    background-color: white;
-    color: #4a90e2;
+.home-btn:hover {
+    transform: translateY(-1px);
 }
 
-.login-btn:hover {
-    background-color: #f0f0f0;
+.home-btn--primary {
+    color: #fff;
+    background: #3797f0;
+    border: none;
+    box-shadow: 0 4px 14px rgba(55, 151, 240, 0.4);
 }
 
-.register-btn {
-    background-color: white;
-    color: #9013fe;
+.home-btn--primary:hover {
+    background: #2a7ad6;
+    box-shadow: 0 6px 20px rgba(55, 151, 240, 0.45);
 }
 
-.register-btn:hover {
-    background-color: #f0f0f0;
+.home-btn--secondary {
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.home-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
 }

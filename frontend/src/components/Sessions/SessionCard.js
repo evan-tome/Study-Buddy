@@ -1,52 +1,66 @@
 import React from 'react';
+import { getSessionTimeStatus } from '../../utils/sessionTime';
+import { IconTopic, IconLocation, IconLink, IconClock } from '../Icons';
 
-export default function SessionCard({ session, joined, onJoin, onLeave, onOpenChat }) {
+export default function SessionCard({ session, joined, isCreator, onJoin, onLeave, onOpenChat, onSettings, onDeleteRequest }) {
+    const handleCardClick = (e) => {
+        if (e.target.closest('button') || e.target.closest('.session-card-actions') || e.target.closest('a')) return;
+        if (onOpenChat) onOpenChat(session.id);
+    };
+
+    const timeStatus = getSessionTimeStatus(session.startTime, session.endTime);
+    const isOnline = session.sessionType === 'online';
+
     return (
-        <div
-            style={cardStyle}
-            onClick={(e) => {
-                // Prevent clicking on buttons from triggering the card click
-                if (e.target.tagName !== 'BUTTON') {
-                    onOpenChat(session.id);
-                }
-            }}
-        >
-            <h3>{session.courseCode}</h3>
-            <p><b>Topic:</b> {session.topics}</p>
-            <p><b>Location:</b> {session.location}</p>
-            <p>
-                <b>Time:</b> {new Date(session.startTime).toLocaleString()} - {new Date(session.endTime).toLocaleString()}
-            </p>
+        <div className="session-card" onClick={handleCardClick}>
+            <div className="session-card-header">
+                <h3>{session.courseCode}</h3>
+                <span className={`session-card-badge session-card-badge--${timeStatus.status}`}>
+                    {timeStatus.label}
+                </span>
+            </div>
+            <div className="session-card-row">
+                <span className="session-card-icon" aria-hidden="true"><IconTopic size={22} /></span>
+                <span><strong>Topic:</strong> {session.topics || '—'}</span>
+            </div>
+            <div className="session-card-row">
+                <span className="session-card-icon" aria-hidden="true">
+                    {isOnline ? <IconLink size={22} /> : <IconLocation size={22} />}
+                </span>
+                <span>
+                    <strong>{isOnline ? 'Online' : 'Location'}:</strong>{' '}
+                    {isOnline && session.meetingLink ? (
+                        <a href={session.meetingLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                            Join link
+                        </a>
+                    ) : (
+                        session.location
+                    )}
+                </span>
+            </div>
+            <div className="session-card-row">
+                <span className="session-card-icon" aria-hidden="true"><IconClock size={22} /></span>
+                <span>
+                    {new Date(session.startTime).toLocaleString()} – {new Date(session.endTime).toLocaleString()}
+                </span>
+            </div>
 
-            <div style={{ marginTop: '10px' }}>
-                {joined ? (
-                    <>
-                        <button style={buttonStyle} onClick={() => onLeave(session.id)}>Leave</button>
-                    </>
+            <div className="session-card-actions" onClick={e => e.stopPropagation()}>
+                {(joined || isCreator) ? (
+                    <button
+                        type="button"
+                        className="btn-leave"
+                        onClick={() => isCreator && onDeleteRequest ? onDeleteRequest(session) : onLeave(session.id)}
+                    >
+                        {isCreator ? 'Delete session' : 'Leave'}
+                    </button>
                 ) : (
-                    <button style={buttonStyle} onClick={() => onJoin(session.id)}>Join</button>
+                    <button type="button" className="btn-join" onClick={() => onJoin(session.id)}>Join</button>
+                )}
+                {isCreator && onSettings && (
+                    <button type="button" className="btn-settings" onClick={() => onSettings(session)}>Settings</button>
                 )}
             </div>
         </div>
     );
 }
-
-const cardStyle = {
-    border: '1px solid gray',
-    borderRadius: '8px',
-    padding: '15px',
-    marginBottom: '15px',
-    backgroundColor: '#f9f9f9',
-    boxShadow: '2px 2px 5px rgba(0,0,0,0.1)',
-    cursor: 'pointer' // shows it's clickable
-};
-
-const buttonStyle = {
-    padding: '8px 12px',
-    marginRight: '8px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#1976d2',
-    color: 'white'
-};

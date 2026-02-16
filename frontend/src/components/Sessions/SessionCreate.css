@@ -1,0 +1,147 @@
+.session-create-form {
+    max-width: 520px;
+}
+
+.session-create-form-title {
+    margin: 0 0 20px 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.session-create-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.session-create-form-row--double {
+    grid-template-columns: 1fr 1fr;
+}
+
+.session-create-form-row--full {
+    grid-template-columns: 1fr;
+}
+
+.session-create-form-radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 4px;
+}
+
+.session-create-form-radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.session-create-form-radio input {
+    margin: 0;
+}
+
+.session-create-form-row--submit {
+    align-items: end;
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+.session-create-form-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #444;
+}
+
+.session-create-form-label--full {
+    margin-bottom: 16px;
+}
+
+.session-create-form-label--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.session-create-form-input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.session-create-form-input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+}
+
+.session-create-form-input::placeholder {
+    color: #999;
+}
+
+.session-create-form-input--narrow {
+    width: 72px;
+    text-align: center;
+}
+
+.session-create-form-input[type="datetime-local"] {
+    min-height: 40px;
+}
+
+.session-create-form-submit {
+    padding: 10px 20px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.session-create-form-submit:hover {
+    background: #1565c0;
+}
+
+.session-create-form-submit:active {
+    transform: translateY(1px);
+}
+
+.session-create-form-message {
+    margin: 14px 0 0 0;
+    font-size: 0.9rem;
+    color: #2e7d32;
+}
+
+.session-create-form-message--error {
+    color: #c62828;
+}
+
+@media (max-width: 540px) {
+    .session-create-form-row,
+    .session-create-form-row--double {
+        grid-template-columns: 1fr;
+    }
+
+    .session-create-form-row--submit {
+        flex-wrap: wrap;
+    }
+
+    .session-create-form-label--inline {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .session-create-form-input--narrow {
+        width: 100%;
+        max-width: 80px;
+    }
+}

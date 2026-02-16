@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import API from '../../api/axios';
 import SessionChat from '../Sessions/SessionChat';
 import { jwtDecode } from 'jwt-decode';
+import { getSessionTimeStatus } from '../../utils/sessionTime';
+import { IconLocation, IconLink, IconClock, IconTopic, IconUsers } from '../Icons';
+import './SessionDashboard.css';
 
 export default function SessionDashboard() {
     const { sessionId } = useParams();
@@ -14,7 +17,6 @@ export default function SessionDashboard() {
     const [currentSession, setCurrentSession] = useState(null);
     const [participants, setParticipants] = useState([]);
 
-    // Fetch all sessions user has joined
     const fetchJoinedSessions = async () => {
         try {
             const res = await API.get('/users/me/sessions', {
@@ -26,7 +28,6 @@ export default function SessionDashboard() {
         }
     };
 
-    // Fetch single session info
     const fetchSession = async (id) => {
         try {
             const res = await API.get(`/sessions/${id}`, {
@@ -47,117 +48,155 @@ export default function SessionDashboard() {
         if (sessionId) fetchSession(sessionId);
     }, [sessionId]);
 
-    if (!currentSession) return <p>Loading session...</p>;
+    if (!sessionId) {
+        return (
+            <div className="session-dashboard">
+                <div className="session-dashboard-sidebar">
+                    <button type="button" className="session-dashboard-back" onClick={() => navigate('/dashboard')}>
+                        ← Back to dashboard
+                    </button>
+                    <h3>Your sessions</h3>
+                    <ul className="session-dashboard-list">
+                        {sessions.map(s => (
+                            <li key={s.id} onClick={() => navigate(`/sessions/${s.id}`)}>
+                                {s.courseCode}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="session-dashboard-main session-dashboard-loading">
+                    Select a session to open chat
+                </div>
+            </div>
+        );
+    }
+
+    if (!currentSession) {
+        return (
+            <div className="session-dashboard">
+                <div className="session-dashboard-sidebar">
+                    <button type="button" className="session-dashboard-back" onClick={() => navigate('/dashboard')}>
+                        ← Back to dashboard
+                    </button>
+                    <h3>Your sessions</h3>
+                    <ul className="session-dashboard-list">
+                        {sessions.map(s => (
+                            <li key={s.id} onClick={() => navigate(`/sessions/${s.id}`)}>
+                                {s.courseCode}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="session-dashboard-main session-dashboard-loading">
+                    Loading session…
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div style={containerStyle}>
-            {/* Left Pane: session navigator */}
-            <div style={navigatorStyle}>
-                <button
-                    style={backButtonStyle}
-                    onClick={() => navigate('/dashboard')}
-                >
-                    Back
+        <div className="session-dashboard">
+            <aside className="session-dashboard-sidebar">
+                <button type="button" className="session-dashboard-back" onClick={() => navigate('/dashboard')}>
+                    ← Back to dashboard
                 </button>
-
-                <h3 style={{ marginTop: '10px', marginBottom: '10px' }}>Your Sessions</h3>
-                <ul style={sessionListStyle}>
+                <h3>Your sessions</h3>
+                <ul className="session-dashboard-list">
                     {sessions.map(s => (
                         <li
                             key={s.id}
-                            style={{
-                                ...sessionItemStyle,
-                                backgroundColor: s.id === currentSession.id ? '#1976d2' : 'transparent',
-                                color: s.id === currentSession.id ? 'white' : 'black',
-                                cursor: 'pointer'
-                            }}
-                            onClick={() => {
-                                if (s.id !== currentSession.id) {
-                                    navigate(`/sessions/${s.id}`);
-                                }
-                            }}
+                            className={s.id === currentSession.id ? 'active' : ''}
+                            onClick={() => s.id !== currentSession.id && navigate(`/sessions/${s.id}`)}
                         >
                             {s.courseCode}
                         </li>
                     ))}
                 </ul>
-            </div>
+            </aside>
 
-            {/* Middle Pane: session info & participants */}
-            <div style={infoPaneStyle}>
-                <h2>{currentSession.courseCode}</h2>
-                <p><b>Topics:</b> {currentSession.topics}</p>
-                <p><b>Location:</b> {currentSession.location}</p>
-                <p>
-                    <b>Time:</b> {new Date(currentSession.startTime).toLocaleString()} - {new Date(currentSession.endTime).toLocaleString()}
-                </p>
+            <main className="session-dashboard-main">
+                <header className="session-dashboard-header">
+                    <h1>{currentSession.courseCode}</h1>
+                    <div className="session-dashboard-header-meta">
+                        {participants.length > 0 && (
+                            <span>{participants.length} participant{participants.length !== 1 ? 's' : ''}</span>
+                        )}
+                    </div>
+                </header>
 
-                <h3>Participants</h3>
-                <ul>
-                    {participants.map(p => (
-                        <li key={p.id}>{p.name}</li>
-                    ))}
-                </ul>
-            </div>
+                <div className="session-dashboard-body">
+                    <aside className="session-dashboard-info-pane">
+                        <div className="info-block">
+                            <h3>Details</h3>
+                            <div className="info-row session-dashboard-status-row">
+                                <strong>Status</strong>
+                                <span className={`session-dashboard-status session-dashboard-status--${getSessionTimeStatus(currentSession.startTime, currentSession.endTime).status}`}>
+                                    {getSessionTimeStatus(currentSession.startTime, currentSession.endTime).label}
+                                </span>
+                            </div>
+                            <div className="info-row info-row--with-icon">
+                                <span className="info-row-icon" aria-hidden="true">
+                                    {currentSession.sessionType === 'online' ? <IconLink size={24} /> : <IconLocation size={24} />}
+                                </span>
+                                <div>
+                                    <strong>Type</strong>
+                                    {currentSession.sessionType === 'online' ? (
+                                        currentSession.meetingLink ? (
+                                            <a href={currentSession.meetingLink} target="_blank" rel="noopener noreferrer">Online – Join link</a>
+                                        ) : (
+                                            'Online'
+                                        )
+                                    ) : (
+                                        'In person'
+                                    )}
+                                </div>
+                            </div>
+                            <div className="info-row info-row--with-icon">
+                                <span className="info-row-icon" aria-hidden="true"><IconLocation size={24} /></span>
+                                <div>
+                                    <strong>Location</strong>
+                                    {currentSession.location}
+                                </div>
+                            </div>
+                            <div className="info-row info-row--with-icon">
+                                <span className="info-row-icon" aria-hidden="true"><IconClock size={24} /></span>
+                                <div>
+                                    <strong>Time</strong>
+                                    {new Date(currentSession.startTime).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}{' '}
+                                    {new Date(currentSession.startTime).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                                    – {new Date(currentSession.endTime).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                                </div>
+                            </div>
+                            {currentSession.topics && (
+                                <div className="info-row info-row--with-icon">
+                                    <span className="info-row-icon" aria-hidden="true"><IconTopic size={24} /></span>
+                                    <div>
+                                        <strong>Topics</strong>
+                                        {currentSession.topics}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="info-block">
+                            <h3>Participants</h3>
+                            <ul className="session-dashboard-participants">
+                                {participants.map(p => (
+                                    <li key={p.id}>
+                                        <Link to={`/users/${p.id}`}>
+                                            <IconUsers size={20} className="participant-list-icon" />
+                                            {p.name}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </aside>
 
-            {/* Right Pane: chat */}
-            <div style={chatPaneStyle}>
-                <SessionChat sessionId={currentSession.id} />
-            </div>
+                    <div className="session-dashboard-chat-wrap">
+                        <SessionChat sessionId={currentSession.id} sessionName={currentSession.courseCode} />
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }
-
-// --- Styles ---
-const containerStyle = {
-    display: 'flex',
-    height: '100vh',
-    overflow: 'hidden'
-};
-
-const navigatorStyle = {
-    width: '200px',
-    borderRight: '1px solid gray',
-    padding: '15px',
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: '#f1f1f1',
-    overflowY: 'auto'
-};
-
-const backButtonStyle = {
-    padding: '8px 12px',
-    marginBottom: '15px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#1976d2',
-    color: 'white'
-};
-
-const sessionListStyle = {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0
-};
-
-const sessionItemStyle = {
-    padding: '8px 10px',
-    marginBottom: '5px',
-    borderRadius: '4px'
-};
-
-const infoPaneStyle = {
-    flex: 1,
-    padding: '20px',
-    borderRight: '1px solid gray',
-    overflowY: 'auto',
-    backgroundColor: '#f9f9f9'
-};
-
-const chatPaneStyle = {
-    flex: 2,
-    padding: '20px',
-    overflowY: 'auto',
-    backgroundColor: '#fff'
-};

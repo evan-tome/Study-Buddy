@@ -1,0 +1,242 @@
+.session-dashboard {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: #fff;
+}
+
+.session-dashboard-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #dbdbdb;
+    background: #fff;
+}
+
+.session-dashboard-back {
+    margin: 12px 16px;
+    padding: 8px 14px;
+    background: transparent;
+    color: #262626;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+}
+
+.session-dashboard-back:hover {
+    background: #f0f0f0;
+}
+
+.session-dashboard-sidebar h3 {
+    margin: 0 16px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #8e8e8e;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.session-dashboard-list {
+    list-style: none;
+    padding: 0 8px;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.session-dashboard-list li {
+    padding: 12px 12px;
+    margin-bottom: 2px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #262626;
+    transition: background 0.15s ease;
+}
+
+.session-dashboard-list li:hover {
+    background: #fafafa;
+}
+
+.session-dashboard-list li.active {
+    background: #efefef;
+    font-weight: 600;
+}
+
+.session-dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.session-dashboard-header {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid #dbdbdb;
+    background: #fff;
+}
+
+.session-dashboard-header h1 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #262626;
+}
+
+.session-dashboard-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.875rem;
+    color: #8e8e8e;
+}
+
+.session-dashboard-header-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.session-dashboard-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.session-dashboard-info-pane {
+    width: 320px;
+    flex-shrink: 0;
+    border-right: 1px solid #dbdbdb;
+    background: #fafafa;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.session-dashboard-info-pane h3 {
+    margin: 0 0 14px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #8e8e8e;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.session-dashboard-info-pane .info-block {
+    margin-bottom: 24px;
+}
+
+.session-dashboard-info-pane .info-row {
+    font-size: 1rem;
+    color: #262626;
+    margin-bottom: 14px;
+}
+
+.session-dashboard-info-pane .info-row strong {
+    display: block;
+    font-size: 0.8rem;
+    color: #8e8e8e;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+}
+
+.session-dashboard-info-pane .info-row--with-icon {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.session-dashboard-info-pane .info-row-icon {
+    flex-shrink: 0;
+    color: #666;
+    margin-top: 2px;
+}
+
+.session-dashboard-participants {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.session-dashboard-participants li {
+    margin-bottom: 6px;
+}
+
+.session-dashboard-participants a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #262626;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.session-dashboard-participants a .participant-list-icon {
+    flex-shrink: 0;
+    color: #8e8e8e;
+}
+
+.session-dashboard-participants a:hover {
+    background: #efefef;
+    color: #3797f0;
+}
+
+.session-dashboard-status-row .session-dashboard-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.session-dashboard-status--ongoing {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.session-dashboard-status--upcoming {
+    background: #f5f5f5;
+    color: #616161;
+}
+
+.session-dashboard-status--ended {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.session-dashboard-info-pane .info-row a[href] {
+    color: #3797f0;
+    text-decoration: none;
+}
+
+.session-dashboard-info-pane .info-row a[href]:hover {
+    text-decoration: underline;
+}
+
+.session-dashboard-chat-wrap {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.session-dashboard-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-size: 0.95rem;
+    color: #8e8e8e;
+}

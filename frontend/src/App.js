@@ -5,6 +5,7 @@ import Register from './components/Auth/Register';
 import Dashboard from './components/Dashboard/MainDashboard';
 import SessionDashboard from './components/Dashboard/SessionDashboard';
 import SessionChat from './components/Sessions/SessionChat';
+import UserProfile from './components/UserProfile';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/sessions/:sessionId" element={<SessionDashboard />} />
                 <Route path="/chat/:sessionId" element={<SessionChat />} />
+                <Route path="/users/:userId" element={<UserProfile />} />
             </Routes>
         </Router>
     );

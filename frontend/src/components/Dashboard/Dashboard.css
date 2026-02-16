@@ -1,0 +1,421 @@
+/* Main Dashboard */
+.dashboard {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.dashboard-error {
+    color: #c62828;
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+}
+
+.dashboard-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dashboard-search-bar input {
+    padding: 10px 14px;
+    width: 260px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.dashboard-search-bar input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+}
+
+.dashboard-search-bar .btn-primary {
+    padding: 10px 18px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.dashboard-search-bar .btn-primary:hover {
+    background: #1565c0;
+}
+
+.dashboard-search-bar .btn-secondary {
+    padding: 10px 18px;
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.dashboard-search-bar .btn-secondary:hover {
+    background: #eee;
+}
+
+/* Section headings */
+.dashboard-section {
+    margin-bottom: 28px;
+}
+
+.dashboard-section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #444;
+    margin: 0 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-section .empty-state {
+    color: #888;
+    font-size: 0.95rem;
+    padding: 16px 0;
+}
+
+/* Session cards grid */
+.session-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Session card overrides for dashboard */
+.dashboard .session-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 20px 22px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: box-shadow 0.15s ease;
+}
+
+.dashboard .session-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dashboard .session-card .session-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.dashboard .session-card .session-card-header h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.dashboard .session-card .session-card-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+    color: #333;
+}
+
+.dashboard .session-card .session-card-icon {
+    flex-shrink: 0;
+    color: #666;
+    margin-top: 2px;
+}
+
+.dashboard .session-card .session-card-row strong {
+    font-weight: 600;
+    color: #444;
+}
+
+.dashboard .session-card .session-card-badge {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.dashboard .session-card .session-card-badge--ongoing {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.dashboard .session-card .session-card-badge--upcoming {
+    background: #f5f5f5;
+    color: #616161;
+}
+
+.dashboard .session-card .session-card-badge--ended {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.dashboard .session-card a[href] {
+    color: #1976d2;
+    text-decoration: none;
+}
+
+.dashboard .session-card a[href]:hover {
+    text-decoration: underline;
+}
+
+.dashboard .session-card .session-card-actions {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dashboard .session-card .btn-join,
+.dashboard .session-card .btn-leave,
+.dashboard .session-card .btn-settings {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+}
+
+.dashboard .session-card .btn-join {
+    background: #1976d2;
+    color: white;
+}
+
+.dashboard .session-card .btn-join:hover {
+    background: #1565c0;
+}
+
+.dashboard .session-card .btn-leave {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.dashboard .session-card .btn-leave:hover {
+    background: #eee;
+}
+
+.dashboard .session-card .btn-settings {
+    padding: 6px 12px;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.dashboard .session-card .btn-settings:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* Session create inline */
+.dashboard .session-create-inline {
+    margin-bottom: 24px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+/* Edit modal overlay */
+.session-edit-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.session-edit-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.session-edit-content h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.25rem;
+}
+
+.session-edit-content input {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+
+.session-edit-content input:focus {
+    outline: none;
+    border-color: #1976d2;
+}
+
+.session-edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.session-edit-actions button {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.session-edit-actions button[type="button"] {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.session-edit-actions button[type="submit"] {
+    background: #1976d2;
+    color: white;
+    border: none;
+}
+
+.session-edit-message {
+    margin: 12px 0 0 0;
+    font-size: 0.9rem;
+    color: #c62828;
+}
+
+.session-settings-delete {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.btn-delete {
+    padding: 8px 14px;
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-delete:hover:not(:disabled) {
+    background: #ffcdd2;
+}
+
+.btn-delete:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Delete confirmation modal */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 20px;
+}
+
+.confirm-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 28px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-modal-title {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.confirm-modal-message {
+    margin: 0 0 24px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #555;
+}
+
+.confirm-modal-message strong {
+    color: #262626;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.confirm-modal-cancel {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #333;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.confirm-modal-cancel:hover {
+    background: #e5e5e5;
+}
+
+.confirm-modal-confirm {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+    background: #c62828;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.confirm-modal-confirm:hover {
+    background: #b71c1c;
+}

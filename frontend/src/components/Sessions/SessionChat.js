@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { io } from 'socket.io-client';
+import './SessionChat.css';
 
 let socket;
 
-export default function SessionChat() {
+export default function SessionChat({ sessionName }) {
     const { sessionId } = useParams();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -31,18 +32,16 @@ export default function SessionChat() {
             return;
         }
 
-        // Fetch chat history
         fetch(`http://localhost:5000/api/sessions/${sessionId}/messages`, {
             headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(data => setMessages(data))
-        .catch(err => console.error('Failed to load chat history', err));
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => setMessages(data))
+            .catch(err => console.error('Failed to load chat history', err));
 
-        // Connect to socket
         socket = io('http://localhost:5000', { auth: { token } });
         socket.emit('joinSession', { sessionId, user: decoded });
 
@@ -67,44 +66,66 @@ export default function SessionChat() {
         setMessage('');
     };
 
-    const handleKeyPress = (e) => { if (e.key === 'Enter') sendMessage(); };
-    const leaveSession = () => { socket.emit('leaveSession', { sessionId, user }); navigate('/dashboard'); };
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
 
     return (
-        <div style={{ maxWidth: 700, margin: '0 auto', padding: '20px' }}>
-            <h2>Session Chat: {sessionId}</h2>
-            <div style={{ marginBottom: '10px' }}>
-                <b>Participants:</b> {participants.map(p => p.name).join(', ')}
-            </div>
-            <div style={{
-                border: '1px solid gray',
-                borderRadius: '5px',
-                height: '350px',
-                overflowY: 'scroll',
-                padding: '10px',
-                marginBottom: '10px',
-                backgroundColor: '#f9f9f9'
-            }}>
-                {messages.map((m, idx) => (
-                    <div key={idx} style={{ marginBottom: '8px' }}>
-                        <b>{m.userId === user?.id ? 'You' : m.name}:</b> {m.text}
-                        <span style={{ fontSize: '0.8em', color: 'gray', marginLeft: '5px' }}>
-                            {new Date(m.createdAt).toLocaleTimeString()}
-                        </span>
+        <div className="session-chat">
+            <div className="session-chat-messages">
+                {messages.length === 0 && (
+                    <div className="session-chat-empty">
+                        No messages yet. Say something to get the conversation started.
                     </div>
-                ))}
+                )}
+                {messages.map((m, idx) => {
+                    const isSent = m.userId === user?.id;
+                    return (
+                        <div
+                            key={m.id || idx}
+                            className={`session-chat-bubble-wrap ${isSent ? 'sent' : ''}`}
+                        >
+                            <div className="session-chat-bubble">
+                                {!isSent && (
+                                    <div className="session-chat-bubble-sender">{m.name}</div>
+                                )}
+                                <div>{m.text}</div>
+                                <div className="session-chat-bubble-time">
+                                    {m.createdAt
+                                        ? new Date(m.createdAt).toLocaleTimeString(undefined, {
+                                              hour: 'numeric',
+                                              minute: '2-digit'
+                                          })
+                                        : ''}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
                 <div ref={messagesEndRef} />
             </div>
-            <input
-                type="text"
-                placeholder="Type a message..."
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                style={{ width: '80%', padding: '10px', marginRight: '10px', borderRadius: '5px', border: '1px solid gray' }}
-            />
-            <button onClick={sendMessage} style={{ padding: '10px 20px', marginRight: '10px', cursor: 'pointer' }}>Send</button>
-            <button onClick={leaveSession} style={{ padding: '10px 20px', cursor: 'pointer' }}>Leave Session</button>
+
+            <div className="session-chat-input-area">
+                <input
+                    type="text"
+                    className="session-chat-input"
+                    placeholder="Message..."
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                />
+                <button
+                    type="button"
+                    className="session-chat-send"
+                    onClick={sendMessage}
+                    disabled={!message.trim()}
+                >
+                    Send
+                </button>
+            </div>
         </div>
     );
 }
