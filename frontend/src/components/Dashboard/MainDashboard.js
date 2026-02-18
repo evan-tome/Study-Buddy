@@ -7,289 +7,233 @@ import SessionEdit from '../Sessions/SessionEdit';
 import { jwtDecode } from 'jwt-decode';
 import './Dashboard.css';
 
+const TABS = [
+  { id: 'discover', label: 'Discover' },
+  { id: 'joined', label: 'Joined' },
+  { id: 'mine', label: 'My Sessions' },
+  { id: 'create', label: 'Create' },
+];
+
 export default function Dashboard() {
-    const token = localStorage.getItem('token');
-    const user = token ? jwtDecode(token) : null;
-    const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const user = token ? jwtDecode(token) : null;
+  const navigate = useNavigate();
 
-    const [allSessions, setAllSessions] = useState([]);
-    const [joinedSessions, setJoinedSessions] = useState([]);
-    const [search, setSearch] = useState('');
-    const [showCreate, setShowCreate] = useState(false);
-    const [leaveError, setLeaveError] = useState('');
-    const [editingSession, setEditingSession] = useState(null);
-    const [deletingId, setDeletingId] = useState(null);
-    const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [allSessions, setAllSessions] = useState([]);
+  const [joinedSessions, setJoinedSessions] = useState([]);
+  const [search, setSearch] = useState('');
+  const [editingSession, setEditingSession] = useState(null);
+  const [leaveError, setLeaveError] = useState('');
+  const [activeTab, setActiveTab] = useState('discover');
 
-    // Fetch all sessions
-    const fetchAllSessions = async () => {
-        try {
-            const res = await API.get('/sessions', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setAllSessions(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  useEffect(() => {
+    fetchAllSessions();
+    fetchJoinedSessions();
+  }, []);
 
-    // Fetch sessions user has joined
-    const fetchJoinedSessions = async () => {
-        try {
-            const res = await API.get('/users/me/sessions', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setJoinedSessions(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  const fetchAllSessions = async () => {
+    try {
+      const res = await API.get('/sessions', { headers: { Authorization: `Bearer ${token}` } });
+      setAllSessions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    useEffect(() => {
-        fetchAllSessions();
-        fetchJoinedSessions();
-    }, []);
+  const fetchJoinedSessions = async () => {
+    try {
+      const res = await API.get('/users/me/sessions', { headers: { Authorization: `Bearer ${token}` } });
+      setJoinedSessions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    // Join session
-    const handleJoin = async (sessionId) => {
-        try {
-            await API.post(`/sessions/${sessionId}/join`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            fetchJoinedSessions();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  const handleJoin = async (sessionId) => {
+    try {
+      await API.post(`/sessions/${sessionId}/join`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      fetchJoinedSessions();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    // Leave session (or delete session if creator)
-    const handleLeave = async (sessionId) => {
-        setLeaveError('');
-        try {
-            await API.post(`/sessions/${sessionId}/leave`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            fetchAllSessions();
-            fetchJoinedSessions();
-        } catch (err) {
-            const msg = err.response?.data?.message || 'Could not leave session';
-            setLeaveError(msg);
-        }
-    };
+  const handleLeave = async (sessionId) => {
+    setLeaveError('');
+    try {
+      await API.post(`/sessions/${sessionId}/leave`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      fetchAllSessions();
+      fetchJoinedSessions();
+    } catch (err) {
+      setLeaveError(err.response?.data?.message || 'Could not leave session');
+    }
+  };
 
-    // Open session dashboard
-    const handleOpenSession = (sessionId) => {
-        navigate(`/sessions/${sessionId}`);
-    };
+  const handleOpenSession = (sessionId) => navigate(`/sessions/${sessionId}`);
+  const handleSettings = (session) => setEditingSession(session);
+  const handleEditSaved = () => {
+    setEditingSession(null);
+    fetchAllSessions();
+    fetchJoinedSessions();
+  };
 
-    const handleSettings = (session) => setEditingSession(session);
-    const handleEditSaved = () => {
-        setEditingSession(null);
-        fetchAllSessions();
-        fetchJoinedSessions();
-    };
-    const handleDeleteClick = (session, fromSettings) => {
-        setDeleteConfirm({ sessionId: session.id, sessionName: session.courseCode, fromSettings });
-    };
+  const searchLower = search.trim().toLowerCase();
+  const matchesSearch = (s) =>
+    !searchLower ||
+    s.courseCode?.toLowerCase().includes(searchLower) ||
+    s.topics?.toLowerCase().includes(searchLower) ||
+    s.location?.toLowerCase().includes(searchLower);
 
-    const handleDelete = async (sessionId) => {
-        setDeletingId(sessionId);
-        try {
-            await API.delete(`/sessions/${sessionId}`, { headers: { Authorization: `Bearer ${token}` } });
-            setEditingSession(null);
-            fetchAllSessions();
-            fetchJoinedSessions();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setDeletingId(null);
-        }
-    };
+  const createdSessions = allSessions.filter((s) => s.creatorId === user?.id);
+  const joinedOnly = joinedSessions.filter((js) => !createdSessions.some((c) => c.id === js.id));
+  const discoverSessions = allSessions.filter((s) => matchesSearch(s) && s.creatorId !== user?.id);
 
-    const handleConfirmDelete = async () => {
-        if (!deleteConfirm) return;
-        const { sessionId, fromSettings } = deleteConfirm;
-        setDeleteConfirm(null);
-        if (fromSettings) {
-            await handleDelete(sessionId);
-        } else {
-            setDeletingId(sessionId);
-            try {
-                await API.post(`/sessions/${sessionId}/leave`, {}, { headers: { Authorization: `Bearer ${token}` } });
-                fetchAllSessions();
-                fetchJoinedSessions();
-            } catch (err) {
-                setLeaveError(err.response?.data?.message || 'Could not delete session');
-            } finally {
-                setDeletingId(null);
-            }
-        }
-    };
-
-    const searchLower = search.trim().toLowerCase();
-    const matchesSearch = (s) => {
-        if (!searchLower) return true;
-        return (
-            (s.courseCode && s.courseCode.toLowerCase().includes(searchLower)) ||
-            (s.topics && s.topics.toLowerCase().includes(searchLower)) ||
-            (s.location && s.location.toLowerCase().includes(searchLower))
-        );
-    };
-    const createdSessions = allSessions.filter(s => s.creatorId === user?.id);
-    const joinedOnly = joinedSessions.filter(js => !createdSessions.some(c => c.id === js.id));
-    const discoverSessions = allSessions.filter(s => matchesSearch(s) && s.creatorId !== user?.id);
-
-    return (
-        <div className="dashboard">
-            <header className="dashboard-header">
-                <h1>Study Sessions</h1>
-                <div className="dashboard-search-bar">
-                    <input
-                        type="search"
-                        placeholder="Search by course, topic, or location…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        aria-label="Search sessions"
-                    />
-                    <button
-                        type="button"
-                        className={showCreate ? 'btn-secondary' : 'btn-primary'}
-                        onClick={() => setShowCreate(!showCreate)}
-                    >
-                        {showCreate ? 'Cancel' : 'Create session'}
-                    </button>
-                </div>
-            </header>
-
-            {leaveError && (
-                <p className="dashboard-error">{leaveError}</p>
-            )}
-
-            {showCreate && (
-                <div className="session-create-inline">
-                    <SessionCreate onCreated={() => {
-                        setShowCreate(false);
-                        fetchAllSessions();
-                        fetchJoinedSessions();
-                    }} />
-                </div>
-            )}
-
-            <section className="dashboard-section">
-                <h2>My sessions</h2>
-                <div className="session-cards">
-                    {createdSessions.length === 0 && (
-                        <p className="empty-state">You haven't created any sessions yet. Use &quot;Create session&quot; to add one.</p>
-                    )}
-                    {createdSessions.map(session => {
-                        const joined = joinedSessions.some(js => js.id === session.id);
-                        return (
-                            <SessionCard
-                                key={session.id}
-                                session={session}
-                                joined={joined}
-                                isCreator
-                                onJoin={handleJoin}
-                                onLeave={handleLeave}
-                                onOpenChat={handleOpenSession}
-                                onSettings={handleSettings}
-                                onDeleteRequest={handleDeleteClick}
-                            />
-                        );
-                    })}
-                </div>
-            </section>
-
-            <section className="dashboard-section">
-                <h2>Joined sessions</h2>
-                <div className="session-cards">
-                    {joinedOnly.length === 0 && (
-                        <p className="empty-state">Sessions you join will appear here.</p>
-                    )}
-                    {joinedOnly.map(session => (
-                        <SessionCard
-                            key={session.id}
-                            session={session}
-                            joined
-                            isCreator={session.creatorId === user?.id}
-                            onJoin={handleJoin}
-                            onLeave={handleLeave}
-                            onOpenChat={handleOpenSession}
-                            onSettings={session.creatorId === user?.id ? handleSettings : undefined}
-                        />
-                    ))}
-                </div>
-            </section>
-
-            <section className="dashboard-section">
-                <h2>Discover sessions</h2>
-                <div className="session-cards">
-                    {discoverSessions.length === 0 && (
-                        <p className="empty-state">
-                            {search.trim() ? 'No sessions match your search.' : 'No other sessions to show.'}
-                        </p>
-                    )}
-                    {discoverSessions.map(session => {
-                        const joined = joinedSessions.some(js => js.id === session.id);
-                        return (
-                            <SessionCard
-                                key={session.id}
-                                session={session}
-                                joined={joined}
-                                onJoin={handleJoin}
-                                onLeave={handleLeave}
-                                onOpenChat={handleOpenSession}
-                            />
-                        );
-                    })}
-                </div>
-            </section>
-
-            {deleteConfirm && (
-                <div className="confirm-modal-overlay" onClick={() => setDeleteConfirm(null)}>
-                    <div className="confirm-modal" onClick={e => e.stopPropagation()}>
-                        <h3 className="confirm-modal-title">Delete session?</h3>
-                        <p className="confirm-modal-message">
-                            <strong>{deleteConfirm.sessionName}</strong> and all its messages will be permanently deleted. This cannot be undone.
-                        </p>
-                        <div className="confirm-modal-actions">
-                            <button type="button" className="confirm-modal-cancel" onClick={() => setDeleteConfirm(null)}>
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                className="confirm-modal-confirm"
-                                onClick={handleConfirmDelete}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {editingSession && (
-                <div className="session-edit-modal" onClick={() => setEditingSession(null)}>
-                    <div className="session-edit-content" onClick={e => e.stopPropagation()}>
-                        <SessionEdit
-                            session={editingSession}
-                            onSaved={handleEditSaved}
-                            onCancel={() => setEditingSession(null)}
-                            inline
-                        />
-                        <div className="session-settings-delete">
-                            <button
-                                type="button"
-                                className="btn-delete"
-                                disabled={deletingId === editingSession.id}
-                                onClick={() => handleDeleteClick(editingSession, true)}
-                            >
-                                {deletingId === editingSession.id ? 'Deleting…' : 'Delete session'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+  const renderTabContent = () => {
+    if (activeTab === 'discover') {
+      if (!discoverSessions.length) return <p className="empty-state">No sessions found.</p>;
+      return (
+        <div className="session-cards session-cards--discover">
+          {discoverSessions.map((session) => (
+            <SessionCard
+              key={session.id}
+              session={session}
+              joined={joinedSessions.some((js) => js.id === session.id)}
+              onJoin={handleJoin}
+              onLeave={handleLeave}
+              onOpenChat={handleOpenSession}
+            />
+          ))}
         </div>
-    );
+      );
+    }
+
+    if (activeTab === 'joined') {
+      if (!joinedOnly.length) return <p className="empty-state">No joined sessions.</p>;
+      return (
+        <div className="session-cards session-cards--list">
+          {joinedOnly.map((session) => (
+            <SessionCard
+              key={session.id}
+              session={session}
+              joined
+              onJoin={handleJoin}
+              onLeave={handleLeave}
+              onOpenChat={handleOpenSession}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (activeTab === 'mine') {
+      if (!createdSessions.length) return <p className="empty-state">You haven't created any sessions yet.</p>;
+      return (
+        <div className="session-cards session-cards--list">
+          {createdSessions.map((session) => (
+            <SessionCard
+              key={session.id}
+              session={session}
+              joined
+              isCreator
+              onJoin={handleJoin}
+              onLeave={handleLeave}
+              onOpenChat={handleOpenSession}
+              onSettings={handleSettings}
+              onDelete={async (sessionId) => {
+                try {
+                    await API.delete(`/sessions/${sessionId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    fetchAllSessions();
+                    fetchJoinedSessions();
+                } catch (err) {
+                    console.error(err);
+                }
+            }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (activeTab === 'create') {
+      return (
+        <div className="session-create-inline">
+          <SessionCreate
+            onCreated={() => {
+              setActiveTab('joined'); // Automatically go to Joined after creating
+              fetchAllSessions();
+              fetchJoinedSessions();
+            }}
+          />
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className="dashboard">
+      {/* Header */}
+      <header className="dashboard-header">
+        <h1>Study Sessions</h1>
+        <div className="dashboard-search-bar">
+          <input
+            type="search"
+            placeholder="Search by course, topic, or location…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </header>
+
+      {leaveError && <p className="dashboard-error">{leaveError}</p>}
+
+      {/* Tabs */}
+      <div className="dashboard-tabs-wrapper">
+        <nav className="dashboard-tabs">
+          {TABS.map((tab) => {
+            const count =
+              tab.id === 'discover'
+                ? discoverSessions.length
+                : tab.id === 'joined'
+                ? joinedOnly.length
+                : tab.id === 'mine'
+                ? createdSessions.length
+                : null;
+
+            return (
+              <button
+                key={tab.id}
+                className={`dashboard-tab ${activeTab === tab.id ? 'dashboard-tab--active' : ''} ${
+                  tab.id === 'create' ? 'dashboard-tab--create' : ''
+                }`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+                {count !== null && <span className="tab-count">{count}</span>}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Active Tab Content */}
+      <div className="dashboard-tab-content">{renderTabContent()}</div>
+
+      {/* Edit Modal */}
+      {editingSession && (
+        <div className="session-edit-modal" onClick={() => setEditingSession(null)}>
+          <div className="session-edit-content" onClick={(e) => e.stopPropagation()}>
+            <SessionEdit
+              session={editingSession}
+              onSaved={handleEditSaved}
+              onCancel={() => setEditingSession(null)}
+              inline
+            />
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
 }

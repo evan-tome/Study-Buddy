@@ -4,7 +4,7 @@ const Message = require('../models/Message');
 
 exports.createSession = async (req, res) => {
     try {
-        const { courseCode, location, startTime, endTime, topics, maxParticipants } = req.body;
+        const { courseCode, location, startTime, endTime, topics, maxParticipants, sessionType, meetingLink } = req.body;
 
         const session = await Session.create({
             courseCode,
@@ -13,7 +13,9 @@ exports.createSession = async (req, res) => {
             endTime,
             topics,
             maxParticipants,
-            creatorId: req.user.id
+            creatorId: req.user.id,
+            sessionType: sessionType === 'online' ? 'online' : 'in_person',
+            meetingLink: sessionType === 'online' ? meetingLink || null : null
         });
 
         // Add creator as participant
@@ -45,7 +47,10 @@ exports.getAllSessions = async (req, res) => {
 exports.getSessionById = async (req, res) => {
     try {
         const session = await Session.findByPk(req.params.id, {
-            include: [{ model: User, as: 'creator', attributes: ['id', 'name'] }]
+            include: [
+                { model: User, as: 'creator', attributes: ['id', 'name'] },
+                { model: User, as: 'users', attributes: ['id', 'name'] }
+            ]
         });
 
         if (!session) return res.status(404).json({ message: 'Not found' });
@@ -64,6 +69,10 @@ exports.joinSession = async (req, res) => {
         });
 
         if (!session) return res.status(404).json({ message: 'Session not found' });
+
+        if (session.creatorId === req.user.id) {
+            return res.status(400).json({ message: 'You cannot join your own session.' });
+        }
 
         // Check if user already joined
         const alreadyJoined = session.users.some(u => u.id === req.user.id);
@@ -94,12 +103,71 @@ exports.leaveSession = async (req, res) => {
 
         if (!session) return res.status(404).json({ message: 'Session not found' });
 
+        // Creator leaving = delete the session
+        if (session.creatorId === req.user.id) {
+            await session.destroy();
+            return res.json({ message: 'Session deleted' });
+        }
+
+        const participantCount = session.users?.length ?? 0;
+        if (participantCount <= 1) {
+            return res.status(400).json({
+                message: 'Cannot leave: the session would have no members.'
+            });
+        }
+
         await session.removeUser(req.user.id);
 
         // Return updated participants
         const participants = await session.getUsers({ attributes: ['id', 'name'] });
 
         res.json({ message: 'Left session', participants });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.updateSession = async (req, res) => {
+    try {
+        const session = await Session.findByPk(req.params.id);
+        if (!session) return res.status(404).json({ message: 'Session not found' });
+        if (session.creatorId !== req.user.id) {
+            return res.status(403).json({ message: 'Only the creator can update this session' });
+        }
+
+        const { courseCode, location, startTime, endTime, topics, maxParticipants, sessionType, meetingLink } = req.body;
+        const type = sessionType === 'online' ? 'online' : 'in_person';
+        await session.update({
+            ...(courseCode != null && { courseCode }),
+            ...(location != null && { location }),
+            ...(startTime != null && { startTime }),
+            ...(endTime != null && { endTime }),
+            ...(topics != null && { topics }),
+            ...(maxParticipants != null && { maxParticipants }),
+            ...(sessionType != null && { sessionType: type }),
+            ...(sessionType != null && { meetingLink: type === 'online' ? (meetingLink || null) : null })
+        });
+
+        const updated = await Session.findByPk(session.id, {
+            include: [{ model: User, as: 'creator', attributes: ['id', 'name'] }]
+        });
+        res.json(updated);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.deleteSession = async (req, res) => {
+    try {
+        const session = await Session.findByPk(req.params.id);
+        if (!session) return res.status(404).json({ message: 'Session not found' });
+        if (session.creatorId !== req.user.id) {
+            return res.status(403).json({ message: 'Only the creator can delete this session' });
+        }
+        await session.destroy();
+        res.json({ message: 'Session deleted' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });

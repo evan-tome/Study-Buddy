@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../../api/axios';
+import './SessionEdit.css';
 
 function toLocalDateTime(iso) {
     if (!iso) return '';
@@ -64,45 +65,151 @@ export default function SessionEdit({ session, onSaved, onCancel, inline }) {
     if (!session) return null;
 
     const formContent = (
-        <>
-            <h3>Edit Session</h3>
-            <form onSubmit={handleSubmit}>
-                <input name="courseCode" placeholder="Course Code" value={form.courseCode} onChange={handleChange} required />
-                <input name="location" placeholder="Location" value={form.location} onChange={handleChange} required />
-                <div style={{ marginBottom: 10 }}>
-                    <label style={{ display: 'block', marginBottom: 4, fontSize: '0.85rem' }}>Type</label>
-                    <label style={{ marginRight: 12 }}>
-                        <input name="sessionType" type="radio" value="in_person" checked={form.sessionType === 'in_person'} onChange={handleChange} />
+        <form className="edit-form" onSubmit={handleSubmit}>
+            <h3 className="edit-form-title">Edit Session</h3>
+
+            <label className="edit-form-label edit-form-label--full">
+                Course Code
+                <input
+                    className="edit-form-input"
+                    name="courseCode"
+                    value={form.courseCode}
+                    onChange={handleChange}
+                    required
+                />
+            </label>
+
+            <label className="edit-form-label edit-form-label--full">
+                Location
+                <input
+                    className="edit-form-input"
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    required
+                />
+            </label>
+
+            <div className="edit-form-label edit-form-label--full">
+                Type
+                <div className="edit-form-radio-group">
+                    <label className="edit-form-radio">
+                        <input
+                            name="sessionType"
+                            type="radio"
+                            value="in_person"
+                            checked={form.sessionType === 'in_person'}
+                            onChange={handleChange}
+                        />
                         In person
                     </label>
-                    <label>
-                        <input name="sessionType" type="radio" value="online" checked={form.sessionType === 'online'} onChange={handleChange} />
+                    <label className="edit-form-radio">
+                        <input
+                            name="sessionType"
+                            type="radio"
+                            value="online"
+                            checked={form.sessionType === 'online'}
+                            onChange={handleChange}
+                        />
                         Online
                     </label>
                 </div>
-                {form.sessionType === 'online' && (
-                    <input name="meetingLink" type="url" placeholder="Meeting link" value={form.meetingLink} onChange={handleChange} style={{ display: 'block', width: '100%', marginBottom: 10 }} />
-                )}
-                <input name="startTime" type="datetime-local" value={form.startTime} onChange={handleChange} required />
-                <input name="endTime" type="datetime-local" value={form.endTime} onChange={handleChange} required />
-                <input name="topics" placeholder="Topics" value={form.topics} onChange={handleChange} />
-                <input name="maxParticipants" type="number" min={1} value={form.maxParticipants} onChange={handleChange} />
-                <div className="session-edit-actions">
-                    <button type="button" onClick={onCancel}>Cancel</button>
-                    <button type="submit" disabled={loading}>{loading ? 'Saving…' : 'Save changes'}</button>
-                </div>
-            </form>
-            {message && <p className="session-edit-message">{message}</p>}
-        </>
+            </div>
+
+            {form.sessionType === 'online' && (
+                <label className="edit-form-label edit-form-label--full">
+                    Meeting Link
+                    <input
+                        className="edit-form-input"
+                        type="url"
+                        name="meetingLink"
+                        value={form.meetingLink}
+                        onChange={handleChange}
+                    />
+                </label>
+            )}
+
+            <div className="edit-form-row edit-form-row--double">
+                <label className="edit-form-label">
+                    Start Time
+                    <input
+                        className="edit-form-input"
+                        type="datetime-local"
+                        name="startTime"
+                        value={form.startTime}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
+                <label className="edit-form-label">
+                    End Time
+                    <input
+                        className="edit-form-input"
+                        type="datetime-local"
+                        name="endTime"
+                        value={form.endTime}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
+            </div>
+
+            <label className="edit-form-label edit-form-label--full">
+                Topics
+                <input
+                    className="edit-form-input"
+                    name="topics"
+                    value={form.topics}
+                    onChange={handleChange}
+                />
+            </label>
+
+            <label className="edit-form-label">
+                Max Participants
+                <input
+                    className="edit-form-input edit-form-input--narrow"
+                    type="number"
+                    min={1}
+                    name="maxParticipants"
+                    value={form.maxParticipants}
+                    onChange={handleChange}
+                />
+            </label>
+
+            <div className="edit-form-row edit-form-row--submit">
+                <button
+                    type="button"
+                    className="edit-form-cancel"
+                    onClick={onCancel}
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    className="edit-form-submit"
+                    disabled={loading}
+                >
+                    {loading ? 'Saving…' : 'Save changes'}
+                </button>
+            </div>
+
+            {message && (
+                <p
+                    className={`edit-form-message ${
+                        message.includes('Failed') ? 'edit-form-message--error' : ''
+                    }`}
+                >
+                    {message}
+                </p>
+            )}
+        </form>
     );
 
     if (inline) return formContent;
 
     return (
         <div className="session-edit-modal">
-            <div className="session-edit-content">
-                {formContent}
-            </div>
+            <div className="session-edit-content">{formContent}</div>
         </div>
     );
 }

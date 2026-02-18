@@ -8,7 +8,9 @@ const Session = sequelize.define('Session', {
     endTime: { type: DataTypes.DATE, allowNull: false },
     topics: { type: DataTypes.TEXT },
     maxParticipants: { type: DataTypes.INTEGER },
-    creatorId: { type: DataTypes.INTEGER, allowNull: false }
+    creatorId: { type: DataTypes.INTEGER, allowNull: false },
+    sessionType: { type: DataTypes.STRING, allowNull: false, defaultValue: 'in_person' },
+    meetingLink: { type: DataTypes.STRING, allowNull: true }
 }, {
     tableName: 'sessions'
 });

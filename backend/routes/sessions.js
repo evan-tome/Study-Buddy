@@ -9,5 +9,7 @@ router.get('/:id', sessionController.getSessionById);
 router.get('/:id/messages', auth, sessionController.getSessionMessages);
 router.post('/:id/join', auth, sessionController.joinSession);
 router.post('/:id/leave', auth, sessionController.leaveSession);
+router.put('/:id', auth, sessionController.updateSession);
+router.delete('/:id', auth, sessionController.deleteSession);
 
 module.exports = router;
